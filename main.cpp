@@ -9,19 +9,19 @@ using namespace std;
 const string ALPHABET[] {"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)","(o)","(p)","(q)","(r)","(s)","(t)","(u)","(v)","(w)","(x)","(y)","(z)"};
 class Card 
 {
-    char _suit;
+    char _suite;
     string _num;
 
     public:
         Card()
         {
-            _suit = ' ';
+            _suite = ' ';
             _num = "";
         }
 
-        Card(char suit, string num)
+        Card(char suite, string num)
         {
-            _suit = suit;
+            _suite = suite;
             _num = num;
         }
 
@@ -33,7 +33,7 @@ class Card
                 return true;
             }
 
-            if(_suit == secondCard._suit || _num == secondCard._num)
+            if(_suite == secondCard._suite || _num == secondCard._num)
             {
                 return true;
             }
@@ -41,12 +41,14 @@ class Card
             return false;
         }
 
-        void setSuit(char suit) { _suit = suit; }
+        char getSuit() { return _suite; }
+        string getNum() { return _num; }
+        void setSuit(char suite) { _suite = suite; }
         void setNum(string num) { _num = num; }
 
         friend ostream& operator<<(ostream& os, const Card& card)
         {
-            os << card._suit << card._num << "\t";
+            os << card._suite << card._num << "\t";
             return os;
         }
 };
@@ -74,6 +76,16 @@ class Player
             cout<<ALPHABET[index++]<<" "<<*i;
         }
         cout<<ALPHABET[index]<< " draw"<<endl;
+    }
+
+    void playCard(Card card)
+    {
+        int index = 0;
+        for(auto i = hand.begin();i != hand.end(); ++i)
+        {
+            index++;
+            if(card.compare(*i)) break;
+        }
     }
 };
 
@@ -130,6 +142,7 @@ void intializePlayerHand(Card* deck, Player* players, int& size)
     }
 }
 
+
 int main()
 {
     Card deck[ALPHABETSIZE];
@@ -143,7 +156,41 @@ int main()
 
     intializePlayerHand(deck, players, deckSize);
 
-    cout << "Size: " << deckSize <<endl;
+    // Get a random card to put on top of the pile
+    int randomIndex = rand()%deckSize;
+    Card temp = deck[randomIndex];
+    deck[randomIndex] = deck[deckSize-1];
+    deck[deckSize-1] = temp;
+    deckSize--;
+    if(temp.getNum() == "8")
+    {
+        while(true)
+        {
+            char suite;
+            cout<<"(a) D (b) C (c) H (d) S"<<endl;
+            cout<<"Choose a suite: ";
+            cin>>suite;
+            // Check if valid suite
+            if(suite - 'a' >= 0 && suite - 'a' <=3)
+            {
+                pile.push_back(Card(suite,"*"));
+                break;
+            }
+        }
+    }
+    else
+    {
+        pile.push_back(temp);
+    }
+    
+    cout << "Pile has " << pile.back() << " <-- your turn" << endl;
+    cout << endl;
+    players[0].showHand();
+    cout << endl;
+    cout << "Which one to play? ";
+    char choice;
+    cin >> choice;
+    
     for(Player p : players)
     {
         p.showHand();
